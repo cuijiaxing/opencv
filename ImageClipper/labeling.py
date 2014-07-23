@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import cv
 import os
+import sys
 from FileNameFeeder import FileNameFeeder
 
 fixed_start_x = 0
@@ -15,6 +16,7 @@ end_x = 0
 end_y = 0
 hasPressed = False
 inputImage = np.zeros((512, 512, 3), np.uint8)
+image_output_count = 0
 def draw_circle(event, x, y, flags, param):
     global start_x
     global start_y
@@ -26,6 +28,7 @@ def draw_circle(event, x, y, flags, param):
     global fixed_start_y
     global fixed_end_x
     global fixed_end_y
+    global image_output_count
     if event == cv2.EVENT_LBUTTONDOWN:
         hasPressed = True
         start_x = x
@@ -65,15 +68,22 @@ if __name__ == "__main__":
 
     imageFileNames = feeder.getImageFiles(inputDir)
     for fileName in imageFileNames:
+        image_output_count = 0
         inputImage = cv2.imread(inputDir + fileName)
         cv2.imshow("image", inputImage)
-        #cv2.imshow('image', inputImage)
-        keyValue = cv2.waitKey() & 0xFF
-        if keyValue == ord('q'):
-            break
-        elif keyValue == 13:
-            resultImage = inputImage[fixed_start_y : fixed_end_y, fixed_start_x : fixed_end_x, :]
-            cv2.imwrite(outputDir + fileName, resultImage)
-            break
+        while True:
+            keyValue = cv2.waitKey() & 0xFF
+            if keyValue == ord('q'):
+                sys.exit(0)
+            elif keyValue == 13:
+                resultImage = inputImage[fixed_start_y : fixed_end_y, fixed_start_x : fixed_end_x, :]
+                dot_index = fileName.find(".")
+                outputFileName = outputDir + fileName[0:dot_index] + "_" + str(image_output_count) + fileName[dot_index:]
+                cv2.imwrite( outputFileName , resultImage)
+                image_output_count += 1
+                cv2.imshow('image', inputImage)
+            elif keyValue == ord(' '):
+                break
+
 
     cv2.destroyAllWindows()
