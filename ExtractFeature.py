@@ -12,6 +12,12 @@ class Classifier:
         featureList = HogFeatureExtractor.getFeatureListFromDir(inputDir)
         labelList = [classLabel for i in xrange(len(featureList))]
         outputFile = open(outputFileName, "w")
+        if len(featureList) > 0:
+            length = len(featureList[0])
+            for i in xrange(length - 1):
+                outputFile.write(str(i))
+                outputFile.write(" ")
+            outputFile.write("label\r\n")
         for i in xrange(len(featureList)):
             currentFeature = featureList[i]
             for value in currentFeature:
